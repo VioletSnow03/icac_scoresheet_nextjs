@@ -1,0 +1,39 @@
+@import '../../styles/mixins';
+
+.signUpSheet {
+    @include pageCardStyle(80vh, 35vw, #7476e6, 1vh);
+    height: fit-content;
+    padding-bottom: 3%;
+
+    h2 {
+        color: #FFFFFF
+    }
+}
+
+// mobile
+@media screen and (max-width: 500px) {
+    .signUpSheet {
+        width: 90vw;
+        height: fit-content;
+        margin-top: 0px;
+        padding-bottom: 10%;
+    }
+}
+
+// small screens
+@media screen and (500px < width <= 1500px) {
+    .signUpSheet {
+        width: 50vw;
+        height: fit-content;
+        padding-bottom: 10%;
+    }
+}
+
+// tablets
+@media screen and (min-width: 500px) and (orientation: portrait) {
+    .signUpSheet {
+        width: 70vw;
+        height: fit-content;
+        padding-bottom: 10%;
+    }
+}

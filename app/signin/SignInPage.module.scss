@@ -1,0 +1,24 @@
+@import '../../styles/mixins';
+
+.signUpCard {
+    @include pageCardStyle(80vh, 30vw, rgb(232, 54, 89), 1vh);
+
+    h1 {
+        color: #FFFFFF
+    }
+}
+
+// mobile
+@media screen and (max-width: 500px) {
+
+}
+
+// small screens
+@media screen and (500px < width <= 1500px) {
+
+}
+
+// tablets
+@media screen and (min-width: 500px) and (orientation: portrait) {
+
+}

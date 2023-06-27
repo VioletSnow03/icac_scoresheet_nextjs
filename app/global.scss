@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Latin:wght@300&family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,100;1,200;1,300;1,400;1,500&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+html, body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #ebf1fc;
+}
+
+:root {
+    --shadow-color: 0deg 0% 0%;
+    --shadow-elevation-low:
+      -0.3px 0.4px 0.7px hsl(var(--shadow-color) / 0.05),
+      -0.5px 0.8px 1.2px -0.6px hsl(var(--shadow-color) / 0.09),
+      -1.2px 1.7px 2.7px -1.2px hsl(var(--shadow-color) / 0.12);
+    --shadow-elevation-medium:
+      -0.3px 0.4px 0.7px hsl(var(--shadow-color) / 0.04),
+      -1px 1.4px 2.3px -0.3px hsl(var(--shadow-color) / 0.06),
+      -1.8px 2.6px 4.2px -0.6px hsl(var(--shadow-color) / 0.08),
+      -3.2px 4.7px 7.5px -0.9px hsl(var(--shadow-color) / 0.1),
+      -5.9px 8.4px 13.5px -1.2px hsl(var(--shadow-color) / 0.11);
+    --shadow-elevation-high:
+      -0.3px 0.4px 0.7px hsl(var(--shadow-color) / 0.04),
+      -2px 2.8px 4.5px -0.1px hsl(var(--shadow-color) / 0.05),
+      -3.5px 5px 8.1px -0.3px hsl(var(--shadow-color) / 0.06),
+      -5.1px 7.3px 11.8px -0.4px hsl(var(--shadow-color) / 0.06),
+      -6.9px 10px 16px -0.5px hsl(var(--shadow-color) / 0.07),
+      -9.4px 13.5px 21.7px -0.7px hsl(var(--shadow-color) / 0.08),
+      -12.6px 18.1px 29.1px -0.8px hsl(var(--shadow-color) / 0.09),
+      -16.9px 24.2px 39px -0.9px hsl(var(--shadow-color) / 0.1),
+      -22.4px 32.1px 51.7px -1.1px hsl(var(--shadow-color) / 0.11),
+      -29.4px 42.2px 67.9px -1.2px hsl(var(--shadow-color) / 0.11);
+
+  }
+
+
+
