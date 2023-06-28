@@ -2,22 +2,29 @@
 
 import { FormControl, TextField, Select, Button, InputLabel, InputAdornment, IconButton, OutlinedInput, MenuItem } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import styles from './SignInForm.module.scss'
-import { useEffect, useRef, useState } from "react";
+import styles from "./SignUpForm.module.scss";
+import { FormEventHandler, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SelectChangeEvent } from "@mui/material";
+import { FormEvent } from "react";
+import { Key } from "react";
 
-export default function SignInForm() {
+type University = {
+    name: String
+}
+
+export default function SignUpForm() {
 
     const router = useRouter()
 
     const [showPassword, setShowPassword] = useState(false);
-    const [universitiesList, setUniversitiesList] = useState([])
+    const [universitiesList, setUniversitiesList] = useState<Array<University>>([])
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [university, setUniversity] = useState('');
+    const [university, setUniversity] = useState<String>('');
     const [password, setPassword] = useState('');
 
     const [usernameError, setUsernameError] = useState(false)
@@ -29,7 +36,11 @@ export default function SignInForm() {
       event.preventDefault();
     };
 
-    async function handleSubmit(event: Event) {
+    function handleUniversityChange (e: SelectChangeEvent<string>) {
+        setUniversity(e.target.value)
+    }
+
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
         // intercept submission
         event.preventDefault()
@@ -77,7 +88,7 @@ export default function SignInForm() {
             return null
         } else if (universitiesList.length > 0) {
             return universitiesList.map(university => (
-                <MenuItem key={university.name} value={university.name}>{university.name}</MenuItem>
+                <MenuItem key={university.name as Key} value={university.name as any}>{university.name}</MenuItem>
             ));
         }
     }
@@ -93,7 +104,7 @@ export default function SignInForm() {
 
     return (
         <div className={styles.formWrapper}>
-            <form onSubmit={handleSubmit} className={styles.signUpForm}>
+            <form onSubmit={(e) => {handleSubmit(e)}} className={styles.signUpForm}>
                 <TextField 
                 error={usernameError}
                 name='username' 
@@ -140,7 +151,7 @@ export default function SignInForm() {
                     labelId="university-label"
                     name='university'
                     label='University'
-                    onChange={event => setUniversity(event.target.value)}
+                    onChange={handleUniversityChange}
                     required
                     >
                         {renderUniversityOptions()}

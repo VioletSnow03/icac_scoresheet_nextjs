@@ -1,14 +1,7 @@
 'use server'
 
 import styles from './SignUpPage.module.scss'
-import SignUpForm from "./ClientComponents/SignUpForm";
-
-export async function fetchUniversitiesList() {
-    const fetchResponse = await fetch('http://universities.hipolabs.com/search?country=United Kingdom')
-    const universitiesList: Array<object> = await fetchResponse.json()
-    console.log(universitiesList)
-    return universitiesList
-}
+import SignUpForm from "../components/SignUpForm/SignUpForm";
 
 export default async function SignUpPage() {
 

@@ -5,7 +5,7 @@ import { authOptions } from "../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import styles from './UserPage.module.scss'
 import Link from "next/link"
-import SignOutButton from "./ClientComponents/SignOutButton"
+import SignOutButton from "../components/SignOutButton/SignOutButton"
 
 type UserSession = {
     user: {
@@ -21,6 +21,8 @@ export default async function UserPage() {
 
     const userSession: UserSession | null = await getServerSession(authOptions as any)
     const user = userSession?.user
+
+    console.log(userSession)
 
     // check if client is logged in, conditionally render different pages
     if (userSession === null) {
