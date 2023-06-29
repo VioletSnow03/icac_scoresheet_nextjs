@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma_test": "./prisma/scripts/prisma_test.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -28,5 +29,8 @@
     "react-dom": "18.2.0",
     "sass": "^1.63.6",
     "typescript": "5.1.3"
+  },
+  "devDependencies": {
+    "prisma-dbml-generator": "^0.10.0"
   }
 }

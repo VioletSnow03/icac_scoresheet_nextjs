@@ -1,7 +1,7 @@
 @import '../../styles/mixins';
 
 .signUpCard {
-    @include pageCardStyle(80vh, 30vw, rgb(232, 54, 89), 1vh);
+    @include pageCardStyle(75vh, 30vw, rgb(232, 54, 89), 1vh);
 
     h1 {
         color: #FFFFFF
@@ -10,15 +10,27 @@
 
 // mobile
 @media screen and (max-width: 500px) {
-
+    .signUpCard {
+        width: 90vw;
+        height: fit-content;
+        padding-bottom: 10%
+    }
 }
 
 // small screens
 @media screen and (500px < width <= 1500px) {
-
+    .signUpCard {
+        width: 50vw;
+        height: fit-content;
+        padding-bottom: 10%
+    }
 }
 
 // tablets
 @media screen and (min-width: 500px) and (orientation: portrait) {
-
+    .signUpCard {
+        width: 70vw;
+        height: fit-content;
+        padding-bottom: 10%
+    }
 }
