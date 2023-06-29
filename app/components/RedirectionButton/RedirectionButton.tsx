@@ -8,7 +8,7 @@ interface RedirectionButtonProps {
     fontSize?: any
 }
 
-export default function RedirectButton ({ backgroundColor, href, text, fontSize }: RedirectionButtonProps) {
+export default function ({ backgroundColor, href, text, fontSize }: RedirectionButtonProps) {
 
     const buttonStyle = {
         backgroundColor: backgroundColor,

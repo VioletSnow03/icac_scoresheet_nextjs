@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  // provider = "prisma-dbml-generator"
 }
 
 datasource db {
@@ -12,7 +11,7 @@ datasource db {
 }
 
 model User {
-  userId       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @id @default(uuid()) @map("_id") @db.ObjectId
   username     String   @unique
   firstName    String
   lastName     String
@@ -20,70 +19,15 @@ model User {
   email        String   @unique
   passwordHash String
   signUpDate   DateTime @default(now())
-
-  // Foreign Key Fields
-  competitionIds String[] @default([]) @db.ObjectId
-  signUpSheetIds String[] @default([]) @db.ObjectId
-
-  // Foreign Key Relations
-  competition Competition[] @relation(fields: [competitionIds], references: [competitionId]) // each User can be registered to MANY Competitions
-  signUpSheet SignUpSheet[] @relation(fields: [signUpSheetIds], references: [signUpSheetId]) // each User can be signed up on MANY SignUpSheets
-  scoresheets Scoresheet[] // each User can have MANY Scoresheets
 }
 
 model RangeMaster {
-  rangeMasterId String   @id @default(auto()) @map("_id") @db.ObjectId
-  university    String
-  clubName      String   @unique
-  email         String   @unique
-  passwordHash  String
-  signUpDate    DateTime @default(now())
-
-  // each RangeMaster can host/start MANY Competitions
-  competitions Competition[]
-}
-
-model Competition {
-  competitionId   String   @id @default(auto()) @map("_id") @db.ObjectId
-  competitionName String
-  competitionDate DateTime
-  university      String?
-  archers         String[] @default([]) @db.ObjectId
-  judges          String[] @default([]) @db.ObjectId
-
-  // Foreign Key Fields
-  rangeMasterId  String   @db.ObjectId
-  participantIds String[] @default([]) @db.ObjectId
-  signUpSheetId  String   @unique @db.ObjectId
-
-  // Foreign Key Relations
-  participants User[]       @relation(fields: [participantIds], references: [userId]) // each Competition can have MANY participants (Users)
-  hostedBy     RangeMaster  @relation(fields: [rangeMasterId], references: [rangeMasterId]) // each Competition can only be hosted/started by ONE RangeMaster
-  signUpSheet  SignUpSheet  @relation(fields: [signUpSheetId], references: [signUpSheetId]) // each Competition can only have ONE SignUpSheet
-  scoresheets  Scoresheet[] // each Competition can have MANY Scoresheets
-}
-
-model SignUpSheet {
-  signUpSheetId String @id @default(auto()) @map("_id") @db.ObjectId
-
-  // Foreign Key Fields
-  competitionId  String   @unique @db.ObjectId
-  participantIds String[] @db.ObjectId
-
-  // Foreign Key Relations
-  competition  Competition? // each SignUpSheet can only be for ONE competition
-  participants User[]       @relation(fields: [participantIds], references: [userId]) // each SignUpSheet can have MANY Users
-}
-
-model Scoresheet {
-  scoresheetId String @id @default(auto()) @map("_id") @db.ObjectId
-  scoresheet   Json
-
-  // Foreign Key Fields
-  competitionId String @unique @db.ObjectId
-  userId        String @unique @db.ObjectId
-
-  // Foreign Key Relations
-  competition Competition @relation(fields: [competitionId], references: [competitionId]) // each Scoresheet can only refer to ONE Competition
-  user        User        @relation(fields: [userId], references: [userId]) // each Scoresheet can only belong to ONE User
+  userId       String   @id @default(uuid()) @map("_id") @db.ObjectId
+  //every university can only have 1 RangeMaster account
+  university   String   @unique
+  clubName     String   @unique
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  signUpDate   DateTime @default(now())
 }

@@ -5,19 +5,11 @@
     background-color: #FFFFFF;
     width: 80%;
 
-    span {
-        font-size: max(1vw, 2vh);
-        text-align: center;
-        margin-top: 2vh;
-        font-weight: 500;
-    }
-
     .signUpForm {
         display: flex;
         flex-direction: column;
         align-items: left;
-        width: 90%;
-        padding: 5%;
-
+        width: 80%;
+        padding: 10%;
     }
 }

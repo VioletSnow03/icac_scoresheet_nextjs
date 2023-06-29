@@ -8,7 +8,7 @@ export default async function Home() {
   return (
     <div className={styles.welcomeCard}>
       <div className={styles.logoWrapper}>
-        <Image alt='ICAC scoresheet' className={styles.logoImage} src='/homepage/ICAC_scoresheet.png' fill></Image>
+        <Image className={styles.logoImage} src='/homepage/ICAC_scoresheet.png' fill></Image>
       </div>
       <h1 className={styles.welcomeText}>
         Welcome to ICAC Scoresheet
@@ -22,7 +22,7 @@ export default async function Home() {
       <div className={styles.logInRow}>
         <span>Have an account?</span>
           <div className={styles.buttonWrapper}>
-            <RedirectionButton href='/signin' backgroundColor='#ff5252' text='Sign In' fontSize={'max(2vh,1vw)'} />
+            <RedirectionButton href='api/auth/signin' backgroundColor='#ff5252' text='Sign In' fontSize={'max(2vh,1vw)'} />
           </div>
         </div>
     </div>
