@@ -26,9 +26,9 @@ model User {
   signUpSheetIds String[] @default([]) @db.ObjectId
 
   // Foreign Key Relations
-  competition Competition[] @relation(fields: [competitionIds], references: [competitionId]) // each User can be registered to MANY Competitions
-  signUpSheet SignUpSheet[] @relation(fields: [signUpSheetIds], references: [signUpSheetId]) // each User can be signed up on MANY SignUpSheets
-  scoresheets Scoresheet[] // each User can have MANY Scoresheets
+  competitions Competition[] @relation(fields: [competitionIds], references: [competitionId]) // each User can be registered to MANY Competitions
+  signUpSheets SignUpSheet[] @relation(fields: [signUpSheetIds], references: [signUpSheetId]) // each User can be signed up on MANY SignUpSheets
+  scoresheets  Scoresheet[] // each User can have MANY Scoresheets
 }
 
 model RangeMaster {
@@ -45,7 +45,7 @@ model RangeMaster {
 
 model Competition {
   competitionId   String    @id @default(auto()) @map("_id") @db.ObjectId
-  competitionName String    @unique
+  competitionName String
   competitionDate DateTime?
   university      String?
   round           String?
@@ -62,10 +62,16 @@ model Competition {
   hostedBy     RangeMaster? @relation(fields: [rangeMasterId], references: [rangeMasterId]) // each Competition can only be hosted/started by ONE RangeMaster
   signUpSheet  SignUpSheet? // each Competition can only have ONE SignUpSheet
   scoresheets  Scoresheet[] // each competition can have MANY scoresheets
+
+  @@unique([competitionName, competitionDate, university])
 }
 
 model SignUpSheet {
-  signUpSheetId String @id @default(auto()) @map("_id") @db.ObjectId
+  signUpSheetId   String    @id @default(auto()) @map("_id") @db.ObjectId
+  competitionName String
+  competitionDate DateTime?
+  university      String?
+  round           String?
 
   // Foreign Key Fields
   competitionId  String   @unique @db.ObjectId
@@ -74,13 +80,18 @@ model SignUpSheet {
   // Foreign Key Relations
   competition  Competition @relation(fields: [competitionId], references: [competitionId]) // each SignUpSheet can only be for ONE competition
   participants User[]      @relation(fields: [participantIds], references: [userId]) // each SignUpSheet can have MANY Users
+
+  @@unique([competitionName, competitionDate, university])
 }
 
 model Scoresheet {
   scoresheetId    String    @id @default(auto()) @map("_id") @db.ObjectId
   target          Int
   scoresheet      Json
+  competitionName String
   competitionDate DateTime?
+  university      String?
+  round           String?
 
   // Foreign Key Fields
   competitionId String @db.ObjectId
@@ -90,6 +101,6 @@ model Scoresheet {
   competition Competition @relation(fields: [competitionId], references: [competitionId]) // each Scoresheet can only refer to ONE Competition
   user        User        @relation(fields: [userId], references: [userId]) // each Scoresheet can only belong to ONE User
 
-  // accelerate runtime queries by allowing indexed search using competitionId + target number
-  @@index([userId, target])
+  // accelerate runtime queries by allowing indexed search using userId and competitionName number
+  @@index([userId, competitionName])
 }

@@ -136,4 +136,20 @@ async function getCompetitionScoresheets() {
 
 }
 
-await getCompetitionScoresheets()
+// await getCompetitionScoresheets()
+
+async function getScoresheet() {
+
+    const scoresheet = await prisma.scoresheet.findMany({
+        where: {
+            userId: {
+                equals: '649d57c4f0c24266910e1480'
+            }
+        }
+    })
+
+    console.log(scoresheet)
+
+}
+
+await getScoresheet()
