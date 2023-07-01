@@ -1,4 +1,4 @@
-"\nThe RangeMaster class encapsulates async methods to create and manage competitions.\n";
+"\nThe Competition class encapsulates async methods to interact with all aspects of setting up and running a competition.\n";
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -63,113 +63,66 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var prismadb_1 = require("../prismadb");
-var Entity_1 = require("./Entity");
-var RangeMaster = /** @class */ (function (_super) {
-    __extends(RangeMaster, _super);
-    function RangeMaster(prismaClient, rangeMasterCredentials) {
+var PrismaModel_1 = require("./PrismaModel");
+var prismadb_1 = require("../singletons/prismadb");
+var Competition = /** @class */ (function (_super) {
+    __extends(Competition, _super);
+    function Competition(prismaClient, competitionObject) {
         var _this = _super.call(this) || this;
         /**
-         * @param competition A `Competition` object detailing at least the required fields to create a `Competition`.
-         * @returns `true` if the `Competition` was successfully created, otherwise returns the `error` object for handling
+         * Creates a database copy of the `Competition` instance. The method only works when the object is initialized without a `competitionId` when passed the `competitionObject` - indicating the intent of creating a new `Competition`. Successful creation of a database copy mutates the instance attributes into its fully initialized state where `PrismaModelTypes.Competition` fields are now directly accessible as instance properties.
+         * @returns `true` if successfully created `Competition` object, otherwise returns the `error` object for handling
          */
-        _this.createCompetition = function (competition) { return __awaiter(_this, void 0, void 0, function () {
+        _this.create = function () { return __awaiter(_this, void 0, void 0, function () {
             var createCompetitionResponse, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        competition.rangeMasterId = this.credentials.rangeMasterId;
+                        if (!(this.competitionObject !== undefined)) return [3 /*break*/, 5];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, prismadb_1.prisma.competition.create({
-                                data: __assign({}, competition)
+                                data: __assign({}, this.competitionObject)
                             })];
                     case 2:
                         createCompetitionResponse = _a.sent();
+                        this.initializeExistingComp(createCompetitionResponse);
                         return [2 /*return*/, true];
                     case 3:
                         error_1 = _a.sent();
                         // if create fails, return the error
                         return [2 /*return*/, error_1];
-                    case 4: return [2 /*return*/];
+                    case 4: return [3 /*break*/, 6];
+                    case 5: throw Error("You initialized an existing Competition (".concat(this.id, "). You cannot create an identical copy."));
+                    case 6: return [2 /*return*/];
                 }
             });
         }); };
-        /**
-         * @param date provide date as an object of `numbers` specifying the `{year, month, day}`
-         * @param when provide a search directive to retrieve `Competitions` created `before | since | on` the date
-         * @returns an array of matching `Competition` objects or `null` if no records were found
-         */
-        _this.getCompetitions = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
-            var dateTimeQuery, competitions;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
-                        return [4 /*yield*/, prismadb_1.prisma.rangeMaster.findFirst({
-                                where: {
-                                    rangeMasterId: this.credentials.rangeMasterId
-                                },
-                                select: {
-                                    competitionsHosted: {
-                                        where: {
-                                            competitionDate: __assign({}, dateTimeQuery)
-                                        }
-                                    }
-                                }
-                            })];
-                    case 1:
-                        competitions = _a.sent();
-                        return [2 /*return*/, competitions.competitionsHosted];
-                }
-            });
-        }); };
+        // private method to optionally initialize an existing Competition
+        _this.initializeExistingComp = function (competitionObject) {
+            var competitionId = competitionObject.competitionId, competitionName = competitionObject.competitionName, competitionDate = competitionObject.competitionDate, university = competitionObject.university, round = competitionObject.round, archers = competitionObject.archers, judges = competitionObject.judges, rangeMasterId = competitionObject.rangeMasterId, participantIds = competitionObject.participantIds, scoresheets = competitionObject.scoresheets;
+            _this.id = competitionId;
+            _this.name = competitionName;
+            _this.date = competitionDate;
+            _this.university = university;
+            _this.round = round;
+            _this.archers = archers;
+            _this.judges = judges;
+            _this.rangeMasterId = rangeMasterId;
+            _this.participants = participantIds;
+            _this.scoresheets = scoresheets;
+            // just remove competitionObject
+            _this.competitionObject = undefined;
+        };
         _this.prisma = prismaClient;
-        _this.credentials = rangeMasterCredentials;
+        _this.competitionObject = competitionObject;
+        // if competitionId is provided, that means we are initializing an existing competition
+        if (_this.competitionObject.competitionId !== undefined) {
+            _this.initializeExistingComp(competitionObject);
+        }
         return _this;
     }
-    return RangeMaster;
-}(Entity_1.default));
-if (require.main === module) {
-    var competition_1 = {
-        competitionName: 'SEAL 2023 Spring',
-        university: 'Imperial College London',
-        competitionDate: new Date(2024, 2, 20),
-        address: {
-            addressLine1: 'Ethos Sports Centre'
-        }
-    };
-    (function () { return __awaiter(void 0, void 0, void 0, function () {
-        var rangeMasterCreds, rangeMaster, competitions, competitionCreated, moreCompetitions;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, prismadb_1.prisma.rangeMaster.findFirst({
-                        where: {
-                            clubName: 'Imperial College Archery Club'
-                        }
-                    })];
-                case 1:
-                    rangeMasterCreds = _a.sent();
-                    rangeMaster = new RangeMaster(prismadb_1.prisma, rangeMasterCreds);
-                    return [4 /*yield*/, rangeMaster.getCompetitions()];
-                case 2:
-                    competitions = _a.sent();
-                    console.log('before creating: ', competitions);
-                    return [4 /*yield*/, rangeMaster.createCompetition(competition_1)];
-                case 3:
-                    competitionCreated = _a.sent();
-                    return [4 /*yield*/, rangeMaster.getCompetitions()];
-                case 4:
-                    moreCompetitions = _a.sent();
-                    if (competitionCreated === true) {
-                        console.log('after creating: ', moreCompetitions);
-                    }
-                    else {
-                        console.log('creating competition error: ', competitionCreated);
-                    }
-                    return [2 /*return*/];
-            }
-        });
-    }); })();
-}
+    return Competition;
+}(PrismaModel_1.default));
+exports.default = Competition;

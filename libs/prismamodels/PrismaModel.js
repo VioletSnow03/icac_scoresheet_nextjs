@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * The `Entity` base class provides general methods to construct queries and interact with the Prisma ORM. This base class can be inherited by other classes to gain access to its private utility functions.
  */
-var Entity = /** @class */ (function () {
+var PrismaModel = /** @class */ (function () {
     // just a base utility class, no constructor needed
-    function Entity() {
+    function PrismaModel() {
         /**
          * @param date A `DateTimeParams` object specifying the `{year, month, day}` for the query.
          * @param when A `DateTimeSpecifier` to determine whether to look for records `before | since | on` the provided `date`
@@ -31,6 +31,6 @@ var Entity = /** @class */ (function () {
             }
         };
     }
-    return Entity;
+    return PrismaModel;
 }());
-exports.default = Entity;
+exports.default = PrismaModel;

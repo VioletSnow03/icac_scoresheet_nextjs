@@ -65,5 +65,6 @@ export type Competition = {
     judges?: Array<string>;
     rangeMasterId?: string; // need to remove the optional constraint at some point, every Competition MUST BE HOSTED by ONE RangeMaster
     participantIds?: Array<string>;
+    scoresheets?: any;
 }
 

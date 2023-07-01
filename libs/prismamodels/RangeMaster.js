@@ -1,4 +1,4 @@
-"\nThe User class encapsulates async methods and fields that represent a User document within the User collection of the database.\n";
+"\nThe RangeMaster class encapsulates async methods to create and manage competitions.\n";
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -63,72 +63,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var prismadb_1 = require("../prismadb");
-var Entity_1 = require("./Entity");
-/**
- * Instantiate the `User` class with a `PrismaClient` instance and `UserCredentials` retrieved from session contexts.
- * Provides an interface to get related `User` data from the database.
- */
-var User = /** @class */ (function (_super) {
-    __extends(User, _super);
-    // constructor
-    function User(prismaClient, userCredentials) {
+var prismadb_1 = require("../singletons/prismadb");
+var PrismaModel_1 = require("./PrismaModel");
+var Competition_1 = require("./Competition");
+var RangeMaster = /** @class */ (function (_super) {
+    __extends(RangeMaster, _super);
+    function RangeMaster(prismaClient, rangeMasterCredentials) {
         var _this = _super.call(this) || this;
         /**
-         * @param date provide date as an object of `numbers` specifying the `{year, month, day}`
-         * @param when provide a search directive to retrieve `SignUpSheets` created `before | since | on` the date
-         * @returns an `Array` of matching `SignUpSheet` objects or `null` if no records were found
+         * @param competition A `Competition` object detailing at least the required fields to create a `Competition`.
+         * @returns The successfuly created `Competition` object, otherwise returns the `error` object for handling
          */
-        _this.getSignUpSheets = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
-            var dateTimeQuery, userSignUpSheets;
+        _this.createCompetition = function (competition) { return __awaiter(_this, void 0, void 0, function () {
+            var newCompetition, createResponse;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
-                        return [4 /*yield*/, this.prisma.user.findFirst({
-                                where: {
-                                    userId: this.credentials.userId
-                                },
-                                select: {
-                                    signUpSheets: {
-                                        where: {
-                                            competitionDate: __assign({}, dateTimeQuery)
-                                        }
-                                    }
-                                }
-                            })];
+                        competition.rangeMasterId = this.credentials.rangeMasterId;
+                        newCompetition = new Competition_1.default(this.prisma, competition);
+                        return [4 /*yield*/, newCompetition.create()];
                     case 1:
-                        userSignUpSheets = _a.sent();
-                        return [2 /*return*/, userSignUpSheets.signUpSheets];
-                }
-            });
-        }); };
-        /**
-         * @param date provide date as an object of `numbers` specifying the `{year, month, day}`
-         * @param when provide a search directive to retrieve Scoresheets created `before | since | on` the date
-         * @returns an array of matching `Scoresheet` objects or `null` if no records were found
-         */
-        _this.getScoresheets = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
-            var dateTimeQuery, userScoresheets;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
-                        return [4 /*yield*/, this.prisma.user.findFirst({
-                                where: {
-                                    userId: this.credentials.userId
-                                },
-                                select: {
-                                    scoresheets: {
-                                        where: {
-                                            competitionDate: __assign({}, dateTimeQuery)
-                                        }
-                                    }
-                                }
-                            })];
-                    case 1:
-                        userScoresheets = _a.sent();
-                        return [2 /*return*/, userScoresheets.scoresheets];
+                        createResponse = _a.sent();
+                        if (createResponse === true) {
+                            return [2 /*return*/, newCompetition];
+                        }
+                        else {
+                            // if error
+                            return [2 /*return*/, createResponse];
+                        }
+                        return [2 /*return*/];
                 }
             });
         }); };
@@ -138,17 +101,17 @@ var User = /** @class */ (function (_super) {
          * @returns an array of matching `Competition` objects or `null` if no records were found
          */
         _this.getCompetitions = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
-            var dateTimeQuery, userCompetitions;
+            var dateTimeQuery, competitions;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
-                        return [4 /*yield*/, this.prisma.user.findFirst({
+                        return [4 /*yield*/, prismadb_1.prisma.rangeMaster.findFirst({
                                 where: {
-                                    userId: this.credentials.userId
+                                    rangeMasterId: this.credentials.rangeMasterId
                                 },
                                 select: {
-                                    competitions: {
+                                    competitionsHosted: {
                                         where: {
                                             competitionDate: __assign({}, dateTimeQuery)
                                         }
@@ -156,57 +119,54 @@ var User = /** @class */ (function (_super) {
                                 }
                             })];
                     case 1:
-                        userCompetitions = _a.sent();
-                        return [2 /*return*/, userCompetitions.competitions];
+                        competitions = _a.sent();
+                        return [2 /*return*/, competitions.competitionsHosted];
                 }
             });
         }); };
         _this.prisma = prismaClient;
-        _this.credentials = userCredentials;
+        _this.credentials = rangeMasterCredentials;
         return _this;
     }
-    return User;
-}(Entity_1.default));
-exports.default = User;
-function getUser() {
-    return __awaiter(this, void 0, void 0, function () {
+    return RangeMaster;
+}(PrismaModel_1.default));
+if (require.main === module) {
+    var competition_1 = {
+        competitionName: 'SEAL 2024 November',
+        university: 'Imperial College London',
+        competitionDate: new Date(2024, 11, 5),
+        address: {
+            addressLine1: 'Ethos Sports Centre'
+        }
+    };
+    (function () { return __awaiter(void 0, void 0, void 0, function () {
+        var rangeMasterCreds, rangeMaster, competitions, competitionCreated, moreCompetitions;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, prismadb_1.prisma.user.findFirst({
+                case 0: return [4 /*yield*/, prismadb_1.prisma.rangeMaster.findFirst({
                         where: {
-                            firstName: "Tristan",
-                            lastName: "Lim"
+                            clubName: 'Imperial College Archery Club'
                         }
                     })];
-                case 1: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-}
-// testing enviroment
-if (require.main === module) {
-    // immediately calls async function to avoid callback hell
-    (function () { return __awaiter(void 0, void 0, void 0, function () {
-        var userCreds, user, scoresheet, signUpSheets, competitions;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, getUser()];
                 case 1:
-                    userCreds = _a.sent();
-                    console.log(userCreds);
-                    user = new User(prismadb_1.prisma, userCreds);
-                    return [4 /*yield*/, user.getScoresheets()];
+                    rangeMasterCreds = _a.sent();
+                    rangeMaster = new RangeMaster(prismadb_1.prisma, rangeMasterCreds);
+                    return [4 /*yield*/, rangeMaster.getCompetitions()];
                 case 2:
-                    scoresheet = _a.sent();
-                    console.log(scoresheet);
-                    return [4 /*yield*/, user.getSignUpSheets()];
-                case 3:
-                    signUpSheets = _a.sent();
-                    console.log(signUpSheets);
-                    return [4 /*yield*/, user.getCompetitions()];
-                case 4:
                     competitions = _a.sent();
-                    console.log(competitions);
+                    console.log('before creating: ', competitions);
+                    return [4 /*yield*/, rangeMaster.createCompetition(competition_1)];
+                case 3:
+                    competitionCreated = _a.sent();
+                    return [4 /*yield*/, rangeMaster.getCompetitions()];
+                case 4:
+                    moreCompetitions = _a.sent();
+                    if (competitionCreated.id !== undefined) {
+                        console.log(competitionCreated.id);
+                    }
+                    else {
+                        console.log('error: ', competitionCreated);
+                    }
                     return [2 /*return*/];
             }
         });

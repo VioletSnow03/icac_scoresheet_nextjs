@@ -1,5 +1,5 @@
 import NextAuth from "next-auth/next";
-import {prisma} from '../../../../libs/prismadb';
+import {prisma} from '../../../../libs/singletons/prismadb';
 import CredentialsProvider from "next-auth/providers/credentials";
 const bcrypt = require('bcrypt')
 

@@ -2,22 +2,22 @@
 The User class encapsulates async methods and fields that represent a User document within the User collection of the database.
 `
 import { PrismaClient } from "@prisma/client"
-import { prisma } from "../prismadb"
-import * as EntityTypes from './types/entity_types'
-import Entity from "./Entity"
+import { prisma } from "../singletons/prismadb"
+import * as PrismaModelTypes from './types/prisma_model_types'
+import PrismaModel from "./PrismaModel"
 
 /**
  * Instantiate the `User` class with a `PrismaClient` instance and `UserCredentials` retrieved from session contexts.
  * Provides an interface to get related `User` data from the database.
  */
-export default class User extends Entity {
+export default class User extends PrismaModel {
 
     // instance variable type declarations
     prisma: PrismaClient;
-    credentials: EntityTypes.UserCredentials;
+    credentials: PrismaModelTypes.UserCredentials;
 
     // constructor
-    constructor( prismaClient: PrismaClient, userCredentials: EntityTypes.UserCredentials) {
+    constructor( prismaClient: PrismaClient, userCredentials: PrismaModelTypes.UserCredentials) {
         super()
         this.prisma = prismaClient
         this.credentials = userCredentials
@@ -28,11 +28,11 @@ export default class User extends Entity {
      * @param when provide a search directive to retrieve `SignUpSheets` created `before | since | on` the date
      * @returns an `Array` of matching `SignUpSheet` objects or `null` if no records were found
      */
-    public getSignUpSheets = async (date?: EntityTypes.DateTimeParams, when?: EntityTypes.DateTimeSpecifier): Promise<EntityTypes.SignUpSheet[]> => {
+    public getSignUpSheets = async (date?: PrismaModelTypes.DateTimeParams, when?: PrismaModelTypes.DateTimeSpecifier): Promise<PrismaModelTypes.SignUpSheet[]> => {
 
         const dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {}
 
-        const userSignUpSheets: {signUpSheets: EntityTypes.SignUpSheet[]} = await this.prisma.user.findFirst({
+        const userSignUpSheets: {signUpSheets: PrismaModelTypes.SignUpSheet[]} = await this.prisma.user.findFirst({
             where: {
                 userId: this.credentials.userId
             },
@@ -45,7 +45,7 @@ export default class User extends Entity {
                     }
                 }
             }
-        }) as {signUpSheets: EntityTypes.SignUpSheet[]}
+        }) as {signUpSheets: PrismaModelTypes.SignUpSheet[]}
 
         return userSignUpSheets.signUpSheets
 
@@ -56,11 +56,11 @@ export default class User extends Entity {
      * @param when provide a search directive to retrieve Scoresheets created `before | since | on` the date
      * @returns an array of matching `Scoresheet` objects or `null` if no records were found
      */
-    public getScoresheets = async (date?: EntityTypes.DateTimeParams, when?: EntityTypes.DateTimeSpecifier): Promise<EntityTypes.Scoresheet[]> => {
+    public getScoresheets = async (date?: PrismaModelTypes.DateTimeParams, when?: PrismaModelTypes.DateTimeSpecifier): Promise<PrismaModelTypes.Scoresheet[]> => {
 
         const dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {}
 
-        const userScoresheets: {scoresheets: EntityTypes.Scoresheet[]} | null = await this.prisma.user.findFirst({
+        const userScoresheets: {scoresheets: PrismaModelTypes.Scoresheet[]} | null = await this.prisma.user.findFirst({
             where: {
                 userId: this.credentials.userId
             },
@@ -73,7 +73,7 @@ export default class User extends Entity {
                     }
                 }
             }
-        }) as {scoresheets: EntityTypes.Scoresheet[]}
+        }) as {scoresheets: PrismaModelTypes.Scoresheet[]}
 
         return userScoresheets.scoresheets
 
@@ -84,11 +84,11 @@ export default class User extends Entity {
      * @param when provide a search directive to retrieve `Competitions` created `before | since | on` the date
      * @returns an array of matching `Competition` objects or `null` if no records were found
      */
-    public getCompetitions = async (date?: EntityTypes.DateTimeParams, when?: EntityTypes.DateTimeSpecifier): Promise<EntityTypes.Competition[]> => {
+    public getCompetitions = async (date?: PrismaModelTypes.DateTimeParams, when?: PrismaModelTypes.DateTimeSpecifier): Promise<PrismaModelTypes.Competition[]> => {
 
         const dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {}
 
-        const userCompetitions: {competitions: EntityTypes.Competition[]} = await this.prisma.user.findFirst({
+        const userCompetitions: {competitions: PrismaModelTypes.Competition[]} = await this.prisma.user.findFirst({
             where: {
                 userId: this.credentials.userId
             },
@@ -101,7 +101,7 @@ export default class User extends Entity {
                     }
                 }
             }
-        }) as {competitions: EntityTypes.Competition[]}
+        }) as {competitions: PrismaModelTypes.Competition[]}
 
         return userCompetitions.competitions
 
@@ -120,7 +120,7 @@ async function getUser() {
             firstName: "Tristan",
             lastName: "Lim"
         }
-    }) as EntityTypes.UserCredentials
+    }) as PrismaModelTypes.UserCredentials
 }
 
 
