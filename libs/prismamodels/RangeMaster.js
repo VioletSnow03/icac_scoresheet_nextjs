@@ -66,6 +66,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var prismadb_1 = require("../singletons/prismadb");
 var PrismaModel_1 = require("./PrismaModel");
 var Competition_1 = require("./Competition");
+/**
+ * If you are instantiating an existing record, ensure that the record has an `id` property corresponding to the `rangeMaster.id` property.
+ */
 var RangeMaster = /** @class */ (function (_super) {
     __extends(RangeMaster, _super);
     function RangeMaster(prismaClient, rangeMasterCredentials) {
@@ -74,27 +77,19 @@ var RangeMaster = /** @class */ (function (_super) {
          * @param competition A `Competition` object detailing at least the required fields to create a `Competition`.
          * @returns The successfuly created `Competition` object, otherwise returns the `error` object for handling
          */
-        _this.createCompetition = function (competition) { return __awaiter(_this, void 0, void 0, function () {
-            var newCompetition, createResponse;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        competition.rangeMasterId = this.credentials.rangeMasterId;
-                        newCompetition = new Competition_1.default(this.prisma, competition);
-                        return [4 /*yield*/, newCompetition.create()];
-                    case 1:
-                        createResponse = _a.sent();
-                        if (createResponse === true) {
-                            return [2 /*return*/, newCompetition];
-                        }
-                        else {
-                            // if error
-                            return [2 /*return*/, createResponse];
-                        }
-                        return [2 /*return*/];
-                }
+        _this.createCompetition = function (competition, instantiate) {
+            if (instantiate === void 0) { instantiate = true; }
+            return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            competition.rangeMasterId = this.id;
+                            return [4 /*yield*/, Competition_1.default.create(this.prisma, competition, instantiate)];
+                        case 1: return [2 /*return*/, _b.sent()];
+                    }
+                });
             });
-        }); };
+        };
         /**
          * @param date provide date as an object of `numbers` specifying the `{year, month, day}`
          * @param when provide a search directive to retrieve `Competitions` created `before | since | on` the date
@@ -102,13 +97,14 @@ var RangeMaster = /** @class */ (function (_super) {
          */
         _this.getCompetitions = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
             var dateTimeQuery, competitions;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
                         return [4 /*yield*/, prismadb_1.prisma.rangeMaster.findFirst({
                                 where: {
-                                    rangeMasterId: this.credentials.rangeMasterId
+                                    id: this.id
                                 },
                                 select: {
                                     competitionsHosted: {
@@ -119,54 +115,99 @@ var RangeMaster = /** @class */ (function (_super) {
                                 }
                             })];
                     case 1:
-                        competitions = _a.sent();
-                        return [2 /*return*/, competitions.competitionsHosted];
+                        competitions = _b.sent();
+                        if (competitions !== null) {
+                            return [2 /*return*/, competitions.competitionsHosted.map(function (competition) { return new Competition_1.default(_this.prisma, competition); })];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [2 /*return*/];
                 }
             });
         }); };
         _this.prisma = prismaClient;
-        _this.credentials = rangeMasterCredentials;
+        _this.fullyInstantiateModel(rangeMasterCredentials);
+        delete _this.passwordHash;
         return _this;
     }
+    var _a;
+    _a = RangeMaster;
+    /**
+     * A static method to create new RangeMasters.
+     * @param prismaClient An instance of the `PrismaClient` object.
+     * @param rangeMasterCredentials A `RangeMasterCreateInput` object created by forms submitted from the frontend.
+     * @param instantiate Set to `true` to return an instance of the `User` class or `false` to return the `UserCredentials` object.
+     * @returns `RangeMasterCredentials | RangeMaster instance | error` depending on the success of the operation and `instantiate` parameter.
+     */
+    RangeMaster.create = function (prismaClient, rangeMasterCredentials, instantiate) {
+        if (instantiate === void 0) { instantiate = false; }
+        return __awaiter(void 0, void 0, void 0, function () {
+            var newRangeMaster, error_1;
+            return __generator(_a, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, prismaClient.rangeMaster.create({
+                                data: rangeMasterCredentials
+                            })];
+                    case 1:
+                        newRangeMaster = _b.sent();
+                        if (instantiate) {
+                            return [2 /*return*/, new RangeMaster(prismaClient, newRangeMaster)];
+                        }
+                        else if (!instantiate) {
+                            return [2 /*return*/, newRangeMaster];
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _b.sent();
+                        return [2 /*return*/, error_1];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return RangeMaster;
 }(PrismaModel_1.default));
+exports.default = RangeMaster;
 if (require.main === module) {
-    var competition_1 = {
-        competitionName: 'SEAL 2024 November',
-        university: 'Imperial College London',
-        competitionDate: new Date(2024, 11, 5),
+    var bcrypt = require('bcrypt');
+    var competition = {
+        competitionName: 'SEAL 2023 November',
+        university: 'University of London',
+        competitionDate: new Date(2023, 11, 5),
+        archers: [],
+        judges: [],
+        participantIds: [],
         address: {
             addressLine1: 'Ethos Sports Centre'
         }
     };
     (function () { return __awaiter(void 0, void 0, void 0, function () {
-        var rangeMasterCreds, rangeMaster, competitions, competitionCreated, moreCompetitions;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var rangeMasterCredentials, rangeMaster, _b, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0: return [4 /*yield*/, prismadb_1.prisma.rangeMaster.findFirst({
                         where: {
-                            clubName: 'Imperial College Archery Club'
+                            clubName: 'UoL Archers'
                         }
                     })];
                 case 1:
-                    rangeMasterCreds = _a.sent();
-                    rangeMaster = new RangeMaster(prismadb_1.prisma, rangeMasterCreds);
+                    rangeMasterCredentials = _d.sent();
+                    console.log(rangeMasterCredentials);
+                    rangeMaster = new RangeMaster(prismadb_1.prisma, rangeMasterCredentials);
+                    console.log(rangeMaster.passwordHash);
+                    console.log(rangeMaster.id);
+                    console.log(rangeMaster.university);
+                    // const createdCompetition = await rangeMaster.createCompetition(competition, false)
+                    // console.log(createdCompetition)
+                    _c = (_b = console).log;
                     return [4 /*yield*/, rangeMaster.getCompetitions()];
                 case 2:
-                    competitions = _a.sent();
-                    console.log('before creating: ', competitions);
-                    return [4 /*yield*/, rangeMaster.createCompetition(competition_1)];
-                case 3:
-                    competitionCreated = _a.sent();
-                    return [4 /*yield*/, rangeMaster.getCompetitions()];
-                case 4:
-                    moreCompetitions = _a.sent();
-                    if (competitionCreated.id !== undefined) {
-                        console.log(competitionCreated.id);
-                    }
-                    else {
-                        console.log('error: ', competitionCreated);
-                    }
+                    // const createdCompetition = await rangeMaster.createCompetition(competition, false)
+                    // console.log(createdCompetition)
+                    _c.apply(_b, [_d.sent()]);
                     return [2 /*return*/];
             }
         });

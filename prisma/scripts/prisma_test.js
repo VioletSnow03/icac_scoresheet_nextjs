@@ -1,4 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import {RangeMaster} from '../../libs/prismamodels/RangeMaster.js'
+const bcrypt = require('bcrypt')
+// import * as PrismaModelTypes from '../../libs/prismamodels/types/prisma_model_types.ts'
 
 console.log('prisma test')
 
@@ -152,4 +155,24 @@ async function getScoresheet() {
 
 }
 
-await getScoresheet()
+// await getScoresheet()
+
+
+async function createRangeMaster() {
+
+    const password = 'password'
+
+    const passwordHash = bcrypt.hash(password, 10)
+
+    const rangeMasterAcc = {
+        university: 'University of London',
+        clubName: 'UoL Archers',
+        email: 'uolarchers@uol.ac.uk',
+        passwordHash: passwordHash
+    }
+
+    const newRangeMaster = new RangeMaster(prisma, rangeMasterAcc)
+    console.log(newRangeMaster.credentials)
+}
+
+await createRangeMaster()

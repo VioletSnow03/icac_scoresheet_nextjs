@@ -1,4 +1,3 @@
-"\nThe Competition class encapsulates async methods to interact with all aspects of setting up and running a competition.\n";
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -53,45 +52,97 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var PrismaModel_1 = require("./PrismaModel");
-var prismadb_1 = require("../singletons/prismadb");
 /**
- * The `Competition` class encapsulates async methods to interact with all aspects of setting up and running a competition.
+ * The `Scoresheet` class encapsulates methods to build and create scoresheets.
  */
-var Competition = /** @class */ (function (_super) {
-    __extends(Competition, _super);
-    function Competition(prismaClient, competitionRecord) {
+var Scoresheet = /** @class */ (function (_super) {
+    __extends(Scoresheet, _super);
+    function Scoresheet(prismaClient, scoresheetRecord) {
         var _this = _super.call(this) || this;
+        /**
+         * Synchronizes `Scoresheet` record in the database with the current instance.
+         */
+        _this.save = function () { return __awaiter(_this, void 0, void 0, function () {
+            var saveResponse;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        this.checkIdExists();
+                        return [4 /*yield*/, this.prisma.scoresheet.update({
+                                where: {
+                                    id: this.id
+                                },
+                                data: {
+                                    scoresheet: this.scoresheet
+                                }
+                            })];
+                    case 1:
+                        saveResponse = _b.sent();
+                        return [2 /*return*/, saveResponse];
+                }
+            });
+        }); };
+        /**
+         * Formats the existing `Scoresheet` to the specified round.
+         */
+        _this.setRound = function (roundName, overwrite) {
+            if (overwrite === void 0) { overwrite = false; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var roundFormat;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // check if there is already a scoresheet set, raise a warning if so
+                            if (this.scoresheet !== undefined && !overwrite) {
+                                throw new Error("The current scoresheet has been initialized with a ".concat(this.round));
+                            }
+                            return [4 /*yield*/, this.prisma.round.findFirst({
+                                    where: {
+                                        round: roundName
+                                    },
+                                    select: {
+                                        scoresheetFormat: true
+                                    }
+                                })];
+                        case 1:
+                            roundFormat = _b.sent();
+                            this.scoresheet;
+                            return [2 /*return*/];
+                    }
+                });
+            });
+        };
         _this.prisma = prismaClient;
-        _this.fullyInstantiateModel(competitionRecord);
+        _this.fullyInstantiateModel(scoresheetRecord);
         return _this;
     }
     var _a;
-    _a = Competition;
+    _a = Scoresheet;
     /**
-     * A static method to create new competitions.
+     * A static method to create new scoresheets.
      * @param prismaClient An instance of the `PrismaClient` object.
-     * @param competition A `Prisma.CompetitionCreateInput` object created by forms submitted from the frontend.
-     * @param instantiate Set to `true` to return an instance of the `Competition` class or `false` to return the `CompetitionRecord` object.
-     * @returns `Competition | CompetitionRecord | error` depending on the success of the operation and `instantiate` parameter.
+     * @param scoresheet A `Prisma.ScoresheetCreateInput` object created by forms submitted from the frontend.
+     * @param instantiate Set to `true` to return an instance of the `Scoresheet` class or `false` to return the `ScoresheetRecord` object.
+     * @returns `Scoresheet | ScoresheetRecord | error` depending on the success of the operation and `instantiate` parameter.
      */
-    Competition.create = function (prismaClient, competition, instantiate) {
+    Scoresheet.create = function (prismaClient, scoresheet, instantiate) {
         if (instantiate === void 0) { instantiate = false; }
         return __awaiter(void 0, void 0, void 0, function () {
-            var competitionRecord, error_1;
+            var scoresheetRecord, error_1;
             return __generator(_a, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, prismaClient.competition.create({
-                                data: competition
+                        return [4 /*yield*/, prismaClient.scoresheet.create({
+                                data: scoresheet
                             })];
                     case 1:
-                        competitionRecord = _b.sent();
+                        scoresheetRecord = _b.sent();
                         if (instantiate) {
-                            return [2 /*return*/, new Competition(prismaClient, competitionRecord)];
+                            return [2 /*return*/, new Scoresheet(prismaClient, scoresheetRecord)];
                         }
                         else if (!instantiate) {
-                            return [2 /*return*/, competitionRecord];
+                            return [2 /*return*/, scoresheetRecord];
                         }
                         return [3 /*break*/, 3];
                     case 2:
@@ -102,32 +153,22 @@ var Competition = /** @class */ (function (_super) {
             });
         });
     };
-    return Competition;
+    return Scoresheet;
 }(PrismaModel_1.default));
-exports.default = Competition;
-// testing environment
+exports.default = Scoresheet;
 if (require.main === module) {
-    var competition_1 = {
-        competitionName: 'SEAL 2023 November',
-        university: 'Imperial College London',
-        competitionDate: new Date(2023, 11, 5),
-        archers: [],
-        judges: [],
-        participantIds: [],
-        address: {
-            addressLine1: 'Ethos Sports Centre'
+    var scoresheetObj = {
+        target: 2,
+        competitionId: '649d66bb15f64e0894a91cf9',
+        userId: '649d57c4f0c24266910e1480',
+        competitionName: 'SEAL 2023',
+        round: 'Porstmouth',
+        scoresheet: {
+            dummyScores: [
+                [10, 10, 10],
+                [9, 10, 10],
+                [9, 10, 9],
+            ]
         }
     };
-    (function () { return __awaiter(void 0, void 0, void 0, function () {
-        var newCompetition;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, Competition.create(prismadb_1.prisma, competition_1, true)];
-                case 1:
-                    newCompetition = _b.sent();
-                    console.log(newCompetition.id);
-                    return [2 /*return*/];
-            }
-        });
-    }); })();
 }

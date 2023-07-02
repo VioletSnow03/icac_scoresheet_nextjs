@@ -4,40 +4,70 @@ The RangeMaster class encapsulates async methods to create and manage competitio
 
 import { PrismaClient } from "@prisma/client"
 import { prisma } from "../singletons/prismadb"
+import { Prisma } from "@prisma/client"
 import * as PrismaModelTypes from './types/prisma_model_types'
 import PrismaModel from "./PrismaModel"
 import Competition from "./Competition"
 
-class RangeMaster extends PrismaModel {
+interface RangeMasterCredentials {
+    id: string;
+    university: string;
+    clubName: string;
+    email: string;
+    passwordHash: string;
+    signUpDate: Date;
+}
+
+/**
+ * If you are instantiating an existing record, ensure that the record has an `id` property corresponding to the `rangeMaster.id` property.
+ */
+export default class RangeMaster extends PrismaModel {
 
     // instance variable type declarations
     prisma: PrismaClient;
-    credentials: PrismaModelTypes.RangeMasterCredentials
 
-    constructor (prismaClient: PrismaClient, rangeMasterCredentials: PrismaModelTypes.RangeMasterCredentials) {
+    constructor (prismaClient: PrismaClient, rangeMasterCredentials: RangeMasterCredentials) {
         super()
         this.prisma = prismaClient
-        this.credentials = rangeMasterCredentials
+        this.fullyInstantiateModel(rangeMasterCredentials)
+        delete this.passwordHash
     }
+
+    /**
+     * A static method to create new RangeMasters.
+     * @param prismaClient An instance of the `PrismaClient` object.
+     * @param rangeMasterCredentials A `RangeMasterCreateInput` object created by forms submitted from the frontend.
+     * @param instantiate Set to `true` to return an instance of the `User` class or `false` to return the `UserCredentials` object.
+     * @returns `RangeMasterCredentials | RangeMaster instance | error` depending on the success of the operation and `instantiate` parameter.
+     */
+    public static create = async (prismaClient: PrismaClient, rangeMasterCredentials: Prisma.RangeMasterCreateInput, instantiate: boolean=false): Promise<RangeMasterCredentials | RangeMaster | unknown> => {
+
+        try {
+
+            const newRangeMaster = await prismaClient.rangeMaster.create({
+                data: rangeMasterCredentials
+            })
+
+            if (instantiate) {
+                return new RangeMaster(prismaClient, newRangeMaster)
+            } else if (!instantiate) {
+                return newRangeMaster
+            }
+
+        } catch (error) {
+            return error
+        }
+
+    }
+
 
     /**
      * @param competition A `Competition` object detailing at least the required fields to create a `Competition`.
      * @returns The successfuly created `Competition` object, otherwise returns the `error` object for handling
      */
-    public createCompetition = async (competition: PrismaModelTypes.Competition): Promise<Competition | unknown> => {
-
-        competition.rangeMasterId = this.credentials.rangeMasterId
-
-        const newCompetition = new Competition(this.prisma, competition)
-        const createResponse = await newCompetition.create()
-
-        if (createResponse === true) {
-            return newCompetition
-        } else {
-            // if error
-            return createResponse
-        }
-
+    public createCompetition = async (competition: Prisma.CompetitionUncheckedCreateInput, instantiate: boolean=true): Promise<Competition | unknown> => {
+        competition.rangeMasterId = this.id
+        return await Competition.create(this.prisma, competition, instantiate)
     }
 
     /**
@@ -45,13 +75,13 @@ class RangeMaster extends PrismaModel {
      * @param when provide a search directive to retrieve `Competitions` created `before | since | on` the date
      * @returns an array of matching `Competition` objects or `null` if no records were found
      */
-    public getCompetitions = async (date?: PrismaModelTypes.DateTimeParams, when?: PrismaModelTypes.DateTimeSpecifier): Promise<PrismaModelTypes.Competition[]> => {
+    public getCompetitions = async (date?: PrismaModelTypes.DateTimeParams, when?: PrismaModelTypes.DateTimeSpecifier): Promise<Competition[] | []> => {
 
         const dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {}
 
-        const competitions: {competitionsHosted: PrismaModelTypes.Competition[]} = await prisma.rangeMaster.findFirst({
+        const competitions: {competitionsHosted: PrismaModelTypes.CompetitionRecord[]} | null = await prisma.rangeMaster.findFirst({
             where: {
-                rangeMasterId: this.credentials.rangeMasterId
+                id: this.id
             },
             select: {
                 competitionsHosted: {
@@ -62,9 +92,13 @@ class RangeMaster extends PrismaModel {
                     }
                 }
             }
-        }) as {competitionsHosted: PrismaModelTypes.Competition[]}
+        }) as {competitionsHosted: []}
 
-        return competitions.competitionsHosted
+        if (competitions !== null) {
+            return competitions.competitionsHosted.map(competition => new Competition(this.prisma, competition))
+        } else {
+            return []
+        }
 
     }
 
@@ -73,33 +107,39 @@ class RangeMaster extends PrismaModel {
 
 if (require.main === module) {
 
-    const competition: PrismaModelTypes.Competition = {
-        competitionName: 'SEAL 2024 November',
-        university: 'Imperial College London',
-        competitionDate: new Date(2024,11,5),
+    const bcrypt = require('bcrypt')
+
+    const competition: PrismaModelTypes.CompetitionRecord = {
+        competitionName: 'SEAL 2023 November',
+        university: 'University of London',
+        competitionDate: new Date(2023,11,5),
+        archers: [],
+        judges: [],
+        participantIds: [],
         address: {
             addressLine1: 'Ethos Sports Centre'
         }
     };
 
     (async () => {
-        const rangeMasterCreds = await prisma.rangeMaster.findFirst({
+
+        const rangeMasterCredentials = await prisma.rangeMaster.findFirst({
             where: {
-                clubName: 'Imperial College Archery Club'
+                clubName: 'UoL Archers'
             }
-        }) as PrismaModelTypes.RangeMasterCredentials
+        }) as PrismaModelTypes.RangeMasterRecord
 
-        const rangeMaster = new RangeMaster(prisma, rangeMasterCreds)
-        const competitions = await rangeMaster.getCompetitions()
-        console.log('before creating: ',competitions)
-        const competitionCreated: any = await rangeMaster.createCompetition(competition)
-        const moreCompetitions = await rangeMaster.getCompetitions()
+        console.log(rangeMasterCredentials)
 
-        if (competitionCreated.id !== undefined) {
-            console.log(competitionCreated.id)
-        } else {
-            console.log('error: ', competitionCreated)
-        }
+        const rangeMaster = new RangeMaster(prisma, rangeMasterCredentials)
+        console.log(rangeMaster.passwordHash)
+        console.log(rangeMaster.id)
+        console.log(rangeMaster.university)
+        
+        // const createdCompetition = await rangeMaster.createCompetition(competition, false)
+        // console.log(createdCompetition)
+        console.log(await rangeMaster.getCompetitions())
+
     })()
 
 }

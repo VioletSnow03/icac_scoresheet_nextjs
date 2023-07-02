@@ -65,6 +65,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var prismadb_1 = require("../singletons/prismadb");
 var PrismaModel_1 = require("./PrismaModel");
+var Scoresheet_1 = require("./Scoresheet");
+var Competition_1 = require("./Competition");
 /**
  * Instantiate the `User` class with a `PrismaClient` instance and `UserCredentials` retrieved from session contexts.
  * Provides an interface to get related `User` data from the database.
@@ -79,44 +81,23 @@ var User = /** @class */ (function (_super) {
          * @param when provide a search directive to retrieve `SignUpSheets` created `before | since | on` the date
          * @returns an `Array` of matching `SignUpSheet` objects or `null` if no records were found
          */
-        _this.getSignUpSheets = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
-            var dateTimeQuery, userSignUpSheets;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
-                        return [4 /*yield*/, this.prisma.user.findFirst({
-                                where: {
-                                    userId: this.credentials.userId
-                                },
-                                select: {
-                                    signUpSheets: {
-                                        where: {
-                                            competitionDate: __assign({}, dateTimeQuery)
-                                        }
-                                    }
-                                }
-                            })];
-                    case 1:
-                        userSignUpSheets = _a.sent();
-                        return [2 /*return*/, userSignUpSheets.signUpSheets];
-                }
-            });
-        }); };
+        // public getSignUpSheets = async (date?: PrismaModelTypes.DateTimeParams, when?: PrismaModelTypes.DateTimeSpecifier): Promise<PrismaModelTypes.SignUpSheet[]> => {
+        // }
         /**
          * @param date provide date as an object of `numbers` specifying the `{year, month, day}`
          * @param when provide a search directive to retrieve Scoresheets created `before | since | on` the date
          * @returns an array of matching `Scoresheet` objects or `null` if no records were found
          */
         _this.getScoresheets = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
-            var dateTimeQuery, userScoresheets;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var dateTimeQuery, userScoresheets, scoresheets;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
                         return [4 /*yield*/, this.prisma.user.findFirst({
                                 where: {
-                                    userId: this.credentials.userId
+                                    id: this.id
                                 },
                                 select: {
                                     scoresheets: {
@@ -127,8 +108,11 @@ var User = /** @class */ (function (_super) {
                                 }
                             })];
                     case 1:
-                        userScoresheets = _a.sent();
-                        return [2 /*return*/, userScoresheets.scoresheets];
+                        userScoresheets = _b.sent();
+                        scoresheets = userScoresheets === null || userScoresheets === void 0 ? void 0 : userScoresheets.scoresheets.map(function (scoresheetObj) {
+                            return new Scoresheet_1.default(_this.prisma, scoresheetObj);
+                        });
+                        return [2 /*return*/, scoresheets];
                 }
             });
         }); };
@@ -139,13 +123,14 @@ var User = /** @class */ (function (_super) {
          */
         _this.getCompetitions = function (date, when) { return __awaiter(_this, void 0, void 0, function () {
             var dateTimeQuery, userCompetitions;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         dateTimeQuery = date && when !== undefined ? this.generateDateQuery(date, when) : {};
                         return [4 /*yield*/, this.prisma.user.findFirst({
                                 where: {
-                                    userId: this.credentials.userId
+                                    id: this.id
                                 },
                                 select: {
                                     competitions: {
@@ -156,57 +141,100 @@ var User = /** @class */ (function (_super) {
                                 }
                             })];
                     case 1:
-                        userCompetitions = _a.sent();
-                        return [2 /*return*/, userCompetitions.competitions];
+                        userCompetitions = _b.sent();
+                        if (userCompetitions !== null) {
+                            return [2 /*return*/, userCompetitions.competitions.map(function (competition) { return new Competition_1.default(_this.prisma, competition); })];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [2 /*return*/];
                 }
             });
         }); };
         _this.prisma = prismaClient;
-        _this.credentials = userCredentials;
+        _this.fullyInstantiateModel(userCredentials);
+        // remove password
+        delete _this.passwordHash;
         return _this;
     }
+    var _a;
+    _a = User;
+    /**
+     * A static method to create new users.
+     * @param prismaClient An instance of the `PrismaClient` object.
+     * @param userCredentials A `UserCreateInput` object created by forms submitted from the frontend.
+     * @param instantiate Set to `true` to return an instance of the `User` class or `false` to return the `UserCredentials` object.
+     * @returns `UserCredentials | User instance | error` depending on the success of the operation and `instantiate` parameter.
+     */
+    User.create = function (prismaClient, userCredentials, instantiate) {
+        if (instantiate === void 0) { instantiate = false; }
+        return __awaiter(void 0, void 0, void 0, function () {
+            var newUser, error_1;
+            return __generator(_a, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, prismaClient.user.create({
+                                data: userCredentials
+                            })];
+                    case 1:
+                        newUser = _b.sent();
+                        if (instantiate) {
+                            return [2 /*return*/, new User(prismaClient, newUser)];
+                        }
+                        else if (!instantiate) {
+                            return [2 /*return*/, newUser];
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _b.sent();
+                        return [2 /*return*/, error_1];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return User;
 }(PrismaModel_1.default));
 exports.default = User;
 function getUser() {
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0: return [4 /*yield*/, prismadb_1.prisma.user.findFirst({
                         where: {
                             firstName: "Tristan",
                             lastName: "Lim"
                         }
                     })];
-                case 1: return [2 /*return*/, _a.sent()];
+                case 1: return [2 /*return*/, _b.sent()];
             }
         });
     });
 }
 // testing enviroment
 if (require.main === module) {
+    // const bcrypt = require('bcrypt')
     // immediately calls async function to avoid callback hell
     (function () { return __awaiter(void 0, void 0, void 0, function () {
-        var userCreds, user, scoresheet, signUpSheets, competitions;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var userCreds, user, scoresheets, _i, scoresheets_1, scoresheet;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0: return [4 /*yield*/, getUser()];
                 case 1:
-                    userCreds = _a.sent();
+                    userCreds = _b.sent();
                     console.log(userCreds);
                     user = new User(prismadb_1.prisma, userCreds);
                     return [4 /*yield*/, user.getScoresheets()];
                 case 2:
-                    scoresheet = _a.sent();
-                    console.log(scoresheet);
-                    return [4 /*yield*/, user.getSignUpSheets()];
-                case 3:
-                    signUpSheets = _a.sent();
-                    console.log(signUpSheets);
-                    return [4 /*yield*/, user.getCompetitions()];
-                case 4:
-                    competitions = _a.sent();
-                    console.log(competitions);
+                    scoresheets = _b.sent();
+                    if (scoresheets !== undefined) {
+                        for (_i = 0, scoresheets_1 = scoresheets; _i < scoresheets_1.length; _i++) {
+                            scoresheet = scoresheets_1[_i];
+                            console.log(scoresheet.scoresheet);
+                        }
+                    }
                     return [2 /*return*/];
             }
         });
